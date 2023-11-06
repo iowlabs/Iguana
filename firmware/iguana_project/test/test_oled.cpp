@@ -1,87 +1,13 @@
-/*
-# SPDX-FileCopyrightText: 2023 iowlabs <contacto@iowlabs.com>
-#
-# SPDX-License-Identifier: GPL-3.0-or-later.txt
-*/
-
-#ifndef __IOWIGUANA__
-#define __IOWIGUANA__
-
 #include <Arduino.h>
 #include <Wire.h>
-#include <SPI.h>
-#include "Adafruit_SHT31.h"
 #include <Adafruit_SH110X.h>
-#include <Adafruit_GFX.h>
-#include <SparkFun_RV8803.h>
-#include <DallasTemperature.h>
-#include <OneWire.h>
-#include "uSD_iow.h"
-#include <FastLED.h>
-#include <ArduinoJson.h>
-#include <LoRa.h>
-#include <WiFi.h>
-
-/*-------PINs OF IGUANA BOARD------*/
-#define LED          2 // on board led
-#define I2C_SCL      22
-#define I2C_SDA      21
-
-#define SD_CS        5 //VSPI
-#define SD_MISO      19
-#define SD_MOSI      23
-#define SD_CLK       18
-
-#define RFM_CS       15 //HPSI
-#define RFM_RST      25
-#define RFM_DIO0     26
-#define RFM_DIO1     27
-
-#define RS485_TX     16 //HARDWARE SERIAL 2
-#define RS485_RX     17 //HARDWARE SERIAL 2
-#define RS485_EN     4
-#define V_EN		 33
-
-#define PUMP       	13
-#define RGB        	14
-#define SENS_TEMP  	32
-#define SENS_M    	34
-#define BAT_LVL    	35
+//#include "phecda.h"
 
 
-#define DISPLAY_ADDRESS 0x3C
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
 #define OLED_RESET     -1 // Reset pin # (or -1 if sharing Arduino reset pin)
-
-#define ID              "n01"
-#define RESPONSE_OK     "OK"
-#define RESPONSE_ERROR  "ERROR"
-#define FILE_NAME       "/log.txt"
-
-#define STATUS_OK     0
-#define STATUS_ERROR  1
-#define ERROR_SD      0b00000001
-#define ERROR_RTC     0b00000010
-#define ERROR_OLED    0b00000100
-#define ERROR_LORA    0b00001000
-
-#define N_AVG_SAMPLES 			100
-#define MOISTURE_AIR_VALUE 		2468
-#define MOISTURE_WATER_VALUE	986
-
-#define SERIAL_RS485 Serial2
-
-//Macros for enable serial prints
-#if DEBUG
-#define printd(s) {Serial.print((s));}
-#define printlnd(s) {Serial.println((s));}
-#else
-#define printd(s)
-#define printlnd(s)
-#endif
-
-#define DEBUG     1
+#define S_A 0x3C //< See datasheet for Address;
 
 const unsigned char logo_iowlabs [] PROGMEM = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -220,65 +146,34 @@ const unsigned char logo_iguana [] PROGMEM = {
 
 
 
-class iowIguana
+
+
+Adafruit_SH1106G display = Adafruit_SH1106G(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+
+void setup()
 {
-  public:
-    iowIguana();
+	Serial.begin(115200);
+	pinMode(33,OUTPUT);
+	digitalWrite(33,1);
+	delay(100);
+	display.begin(S_A,true);
 
-    float soil_temp  	= 0.0;
-    float soil_moisture = 0.0;
-	float ambient_temp  = 0.0;
-	float ambient_h  	= 0.0;
+	display.setRotation(0); //IF NOT INVERTED COMMENT THIS LINE
+	display.clearDisplay();
+	display.setTextSize(1);
+	display.setTextColor(SH110X_WHITE);
+	display.display(); // Initialize with display cleared
+	display.clearDisplay(); // Clear the buffer
+  	display.drawBitmap(0, 0, logo_iowlabs, 128, 64,1,0);
+  	display.display();
+  	delay(3000);
+  	display.drawBitmap(0, 0, logo_iguana, 128, 64,1,0);
+  	display.display();
+	Serial.println("setup ready");
 
-    unsigned long timestamp;
+}
+void loop(){
 
-	uint8_t begin(void);
-    void readSoilTemperature(void);
-    void readSoilMoisture(void);
-    void readSTH(void);
-	void readRS485(void);
-    void readSensors(void);
-    String pubData(void);
-    void activateRS485(void);
-	void activateSTH(void);
-	void activateSoilTemp(void);
-	void activateSoilMoisture(void);
-    void activateLoRa(void);
-    void activateAll(void);
-    void iowLogo(void);
-    void showLogo(void);
-    void showStatus(void);
-    void showData(long time_interval);
-    void saveData(void);
-
-  private:
-    RV8803 rtc;
-    USD_IOW iowsd;
-    Adafruit_SH1106G display = Adafruit_SH1106G(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
-	OneWire ow = OneWire(SENS_TEMP);
-    DallasTemperature sensor_temp = DallasTemperature(&ow);
-	Adafruit_SHT31 sensor_sht31 = Adafruit_SHT31();
-	CRGB rgbLED[1];
-	int sum_adc = 0;
-	float soil_moisture_val = 0;
-	float soil_moisture_m   = (61.3-100)/(MOISTURE_AIR_VALUE-MOISTURE_WATER_VALUE);
-
-    bool sht_sel 		= false;	//sht31 sel
-    bool st_sel 		= false;  	//soil temperature sel
-    bool sm_sel 		= false; 	//soil moisture  sel
-    bool rs485_sel 		= false; 	//modbus sensor sel
-    bool lora_sel 		= false;
-	bool st_status 		= false;
-	bool sm_status 		= false;
-	bool sht_status 	= false;
-    bool rtc_status 	= false;
-    bool sd_status 		= false;
-    bool display_status = false;
-    bool lora_status 	= false;
-
-};
-
-
-
-
-#endif
+	Serial.println("hello");
+	delay(1000);
+}
