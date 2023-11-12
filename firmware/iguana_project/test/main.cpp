@@ -39,7 +39,7 @@ To Do:
 #include "Adafruit_SHT31.h"
 #include <ArduinoJson.h>
 #include <Adafruit_GFX.h>
-#include <Adafruit_SSD1306.h>
+#include <Adafruit_SH110X.h>
 
 //-------------
 //  DEFINES
@@ -72,7 +72,7 @@ To Do:
 // INSTANCES
 //-------------
 
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+Adafruit_SH1106G display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 //JSON to SEND
 char json_tx[1024];
@@ -193,11 +193,6 @@ void setup() {
   pinMode(V_EN,OUTPUT);
   digitalWrite(V_EN,HIGH);
   delay(100);
-
-  if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { 
-    Serial.println(F("SSD1306 allocation failed"));
-    for(;;); // Don't proceed, loop forever
-  }
 
   sht31.begin(0x44);
   
