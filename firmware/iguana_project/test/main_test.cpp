@@ -1,5 +1,5 @@
 /*
-Projecto: PIguana
+Projecto: Iguana
 DESCRIPTION: This code is for Iguana sensor station for small agriculture.
 It features both temperature and humidity sensors to monitor 
 
@@ -24,7 +24,15 @@ LIBS:
 	bblanchon/ArduinoJson@^6.21.3
 
 To Do:
-
+-	EXAMPLES FILES
+-	CHECK STATUS and connectivity
+- 	HANDLE ERRORS
+- 	ADD RGB FEATUREs
+- 	ADD PUMP Features
+-   ADD AUTOMATIC Functions
+-   SET SAMPLE TIME options
+-   ADD TIMERs
+-	less RGB brightness
 */
 
 //-------------

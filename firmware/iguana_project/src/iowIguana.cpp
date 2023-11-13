@@ -40,21 +40,17 @@ uint8_t iowIguana::begin()
   	if(rtc.begin()) rtc_status = true;
   	if(iowsd.uSD_init(SD_CS)) sd_status = true;
   	if(display.begin(DISPLAY_ADDRESS,true)) display_status = true ;
-  	if(lora_sel)
-  	{
+  	if(lora_sel){
     	LoRa.setPins(RFM_CS, RFM_RST, RFM_DIO0);
     	if(LoRa.begin(915E6)) lora_status = true;
     	LoRa.setSyncWord(0xF3);
   	}
-	if(sht_sel)
-	{
+	if(sht_sel){
 		if(sensor_sht31.begin(0x44)) sht_status = true;
 	}
-	if(st_sel)
-	{
+	if(st_sel){
 		sensor_temp.begin();
 		st_status = true;
-
 	}
 
   	display.setRotation(0); //IF NOT INVERTED COMMENT THIS LINE
