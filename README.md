@@ -2,18 +2,18 @@
 
 ![Foto real](3Dmodel/V1/photo_2.jpg)
 
-Iguana es un sensor de LoRa para smartCitys. Es un instrumento diseñado para el monitoreo de la temperatura y humedad de suelo en tiempo real. De bajo costo y diseñado para adaptarse a diversos escenarios y diferentes tipos de reds y topologías de red inalambricas para integrarlo a redes IoT.
+Iguana is a LoRa sensor for smartCitys. It is an instrument designed to monitor soil temperature and humidity in real time. It is a low-cost device designed to address a wide range of scenarios. It has connectivity to different types of wireless networks (LoRa, Bt, BLE, Wifi, RF), adapting to a large number of IoT applications.
 
-La placa fue diseñada para considerar un gran numero de los posibles escenarios que engloban las necesidades comunes asociadas al regadío automático el cutlivo inteligente y el monitoreo de la calidad de suelo. Tanto a nivel de aplicaciones de hogar como a niveles de aplicaciones industriales.
+The PCB was designed with various scenarios in mind that contemplate the common needs associated with automatic irrigation, smart agriculture and soil quality monitoring. Both at the level of domestic applications and at the level of industrial applications.
 
-El sensor considera una compatibilidad con los siguientes sensores:
+The sensor considers compatibility with the following sensors:
 
-- Sensor de humedad de suelo.ds18b20
-- Sensor de temperatura de suelo.
-- Sensor de humedad y temperatura ambiente.
+- Soil moisture sensor ds18b20
+- soil temperature sensor.
+- Humidity and ambient temperature sensor.
 
 
-Ademas cuenta con una driver para una bomba, un módulo LoRa, un módulo RTC y una SD para funciones de datalogger y una pantalla OLED para visualizar la información instantanea. Otro de los atributos interesantes, es que cuenta con un conversor RS485, que permite integrar el dispositivo iguana con sensores de caracter industriales para el monitoreo de la humedad y calidad de suelo que habitualmente son compatibles con protocolos ModBus RS485.  
+It also has a  on board driver for a little water pump, a LoRa module, an RTC module and an SD socket for datalogger functions and an OLED screen to display instant information. Another interesting attribute is that it has an RS485 converter, which allows the iguana device to be integrated with industrial sensors for monitoring soil humidity and quality that are usually compatible with ModBus RS485 protocols.
 
 **IoT**,**LoRa**, **Environmental measurement**, **Soil mositure**, **datalogger**, **MODBUS RS485**.
 
@@ -27,20 +27,16 @@ Ademas cuenta con una driver para una bomba, un módulo LoRa, un módulo RTC y u
 
 The PCB was designed in KiCad7 stable realease and additional components used can be found in the official [iowLabs](https://github.com/iowlabs/KiCad_Lib) library.
 
-Cuenta con un microcontrolador ESP32, un módulo RF95 para integración a redes LoRa y LoRaWAN.  
+It has an ESP32 microcontroller, an RF95 module to integrate into LoRa and LoRaWAN network solutions. It has an RTC RV8803 and a micro SD card connector necessary to implement data logger functions.
+It additionally has a "max485" module to integrate probes for quality monitoring of industrial soils based on MODBUS RS485 communication protocol.
 
+A simple NPN-based controller allows you to integrate small water pumps to implement automatic and remote irrigation control functionalities.
 
+An OLED display and RGB LED let you see real-time information from the sensors.
 
-Cuenta con un RTC RV8803 y un socket para tarjetas micro SD necesarios para implementar funcionalidades de data-logger.
-Adicionalmente cuenta con un módulo "max485" para integrar sondas para monitoreo calidad de suelo de caracter industrial basados en protocolo de cómunicación MODBUS RS485.
+It also has a charging module for lipo batteries based on the integrated TP4056 and a charging protection circuit. Integration with solar panel based applications can be easily achieved.
 
-Un driver sencillo permite integrar bombas pequeñas de riego para implementar funcionalidades de riego automático y control de riego remoto.
-
-Una pantalla OLED y un LED RGB permiten visualizar información en forma real sobre los sensonres.
-
-Cuenta también con un modulo de carga para baterías de lipo basado en el integrado TP4056 y un circuito de protección de carga. Y fácil integración con aplicaciones basadas en paneles solares.
-
-Para administrar la energía del circuito se utiliza un conversor DC DC MT3608 y un arreglo de reguladores que alimentan la electrónica digital, los sensores y el datalogger de forma independiente. Los reguladores que alimentan las dependencias pueden ser desabilitados por medio de firmware para implementar funciones de bajo consumo.
+To manage the power of the circuit, an MT3608 DC DC converter and a set of LDO regulators are used that power the digital electronics, the sensors and the data logger independently. The regulators that power the units can be disabled via firmware to implement low-power features.
 
 ### Dependencies
 The board is based on an ESP32 microcontroller.
@@ -50,7 +46,7 @@ The board is based on an ESP32 microcontroller.
 - microSD socket.
 - RV8803 RTC module.
 - max485 for RS485 communication.
-- On board pump driver.
+- On board pump driver with a NPN 2N3904.
 - On board battery charger compatible with 3.7V lipo bateries, based on TP4056.
 - ws2812 RGB LED
 - OLED display
@@ -61,7 +57,7 @@ The board is based on an ESP32 microcontroller.
 ![Detalle del esquemático de la placa phecda](hardware/output_files/Iguana_V1.svg)
 
 ### Layout
-La tarjeta diseñada tiene dimensiones de 8x5cm. Fue diseñada en una PCB estandar de 1.6mm de dielectrico de dos capas.
+The layout is a 2 layers 8x5cm pcb.
 
 | Top view | Bottom view |
 | -------- | ----------- |
@@ -70,15 +66,15 @@ La tarjeta diseñada tiene dimensiones de 8x5cm. Fue diseñada en una PCB estand
 
 ### BOM
 
-The bill of materials with respective references to LCSC part numbers de los componentes que componen la PCB de iguana can be found at the following [link](hardware/output_files/Iguana_board.csv).
+The bill of materials with respective references to the LCSC part numbers of the iguana PCB components can be found in the following [link](hardware/output_files/Iguana_board.csv).
 
-A continuación se agrega una lista de los componentes y  las sondas y sensores que complementan el dispositivo iguana para implementar todas sus funcionalidades. Los precios entregados y los links sirven solo como referencia.
+Below is a list of the components for the probes and sensors that complement the iguana device to implement all its functionalities. The prices provided and the links are for reference only.
 
 
-|  Componente 	| Precio ref 	| Descripcion 	| Link 		|
+|  component 	| ref price 	| description 	| Link 		|
 | ----------- 	| ----------- 	| ------------- | ---------	|
-| Sensor de humedad de suelo | 				| 	Sensor de humedad de suelo capacitivo	|			|
-| Sensor de temeperatura de suelo| 	| Sonda sensor ds18b20 | |
+| Soil mositure sensor| | 	Low cost, soil moisture capacitive sensor	|			|
+| Soil temperature sensor | | Sensor ds18b20 | |
 | Sensor de humedad y temperatura ambiente | | SHT31 - case outdoor IP68 | |
 | Sensor de Temperatura y humedad de suelo industrial | | Sensor MODBUS 485 capacitivo, de humedad y temperatura de suelo. | |
 | Pantalla OLED |  | 128x64 1.3'' | |
@@ -90,24 +86,25 @@ A continuación se agrega una lista de los componentes y  las sondas y sensores 
 
 ## 3D Model
 
-![Foto real](3Dmodel/V1/photo_1.jpg)
 
-![Render 3D de la placa phecda](hardware/output_files/Phecda_board.png)
+![Enclousure diseñado para Iguana](3Dmodel/img/main_view.png)
 
-Hemos diseñado un casing para intengrar la electrónica. Este diseño es un case simple compuesto de dos partes diseñado para ser impreso en PLA. El objetivo principal de este case es permitir el uso del dispositivo para aplicaciones de hambientes controlados como cultivos particulares e invernaderos. Para aplicaciones de outdoor recomendamos utilizar un case comercial que cuente con una IP65 o superior.  
+![Render 3D de la placa Iguana](3Dmodel/img/iguana_PCB_3d.png)
 
-![Enclousure diseñado para phecda](3Dmodel/V2/full_view.png)
 
-The design allows integrar la pantalla OLED y el LED RGB para monitorear el estatus de los sensores. Deja a disposición del usuario los conectores para la comunicación con las sondas, el conector SMA para la antena LoRa y un boton para el encendido y apagado del dispositivo.
-
+The design allows the integration of the OLED and RGB LED display to monitor the status of the device and read the latest value from the sensors. it leaves exposed the connectors for the probes, the SMA connector for the LoRa antenna, and a switch to turn the device on and off.
 
 | Cover | Base |
 | -------- | ----------- |
-| ![componente superior del case](3Dmodel/V2/top_v2.png)|![componente inferior del case](3Dmodel/V2/base_v2.png)|
+| ![componente superior del case](3Dmodel/img/top_case.png)|![componente inferior del case](3Dmodel/img/bottom_case.png)|
 
-El dispositivo considera una batería lipo 3.7V lipo de 65x54 cm para la alimentación. Esta batería puede ser cargada de forma externa por medio del conector USB o por medio de la entrada de carga.
+Design view files:
 
-Editable files and display plans can be found in [directorio](3Dmodel/).
+- [plans](Iguna_case_V2.pdf)
+
+The device considers a 65x54 cm 3.7V lipo battery for power. This battery can be charged externally through the USB connector or through the charging input connector.
+
+Editable files and display plans can be found in [directorio](3Dmodel/Source_files).
 
 The PCB design allows it to fit commercial project enclosures with IP65 standards or higher for outdoor or harsh weather applications.
 
@@ -146,7 +143,7 @@ Except for the uSD_iow library which is available in the official iowlabs reposi
 
 | File | Description |
 |---------|-------------|
-| simple_version.ino  | Collect the data from the pH, ORP and temperature sensors, and displays it on the screen. Print the collected data in json format through the serial monitor. |
+| simple_version.ino  | Collect the data from the soil moisture and the soil temperature sensors, and displays it on the screen. Print the collected data in json format through the serial monitor. |
 | low_energy_version.ino |  Adds a low-power mode to the simple_version code |
 | lora_version.ino | Activate the LoRa module and send a message in json format. |
 | mqtt_version.ino | This is an example of reading the data and sending it via MQTT to a pre-established broker.|

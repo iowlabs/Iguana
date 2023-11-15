@@ -4,6 +4,22 @@
 # SPDX-License-Identifier: GPL-3.0-or-later.txt
 */
 
+/*
+TODO-
+- Display % de battery
+- Implement autoconect to handle Wifi connection
+- Implement calibration function for moisture sensors
+- Instructions for case as de armado de caja
+- Instrucciones de inicio y uso.
+- Test rápidos para verificar funcionamiento
+- Modo subida de datos
+- Modo red local
+- Modo solo pantalla
+- Sleep Mode
+- modo periodico.
+
+*/
+
 #include <Arduino.h>
 #include "iowIguana.h"
 
