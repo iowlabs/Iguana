@@ -68,11 +68,11 @@ uint8_t iowIguana::begin()
 		sensor_temp.begin();
 		st_status = true;
 	}
-
+	display.clearDisplay();
   	display.setRotation(0); //IF NOT INVERTED COMMENT THIS LINE
-  	display.clearDisplay();
-  	display.setTextSize(1);
-  	display.setTextColor(SH110X_WHITE);
+	display.setTextColor(SH110X_WHITE);
+  	display.setTextSize(2);
+	// display.setFont(); //If not in use, comment
 
   	if( rtc_status && display_status && sd_status && !(sht_sel^sht_status) && !(st_sel^st_status) )
 	{
@@ -219,31 +219,43 @@ void iowIguana::showStatus(void)
 void iowIguana::showData(long time_interval)
 {
 	display.clearDisplay();
-	display.setTextColor(SH110X_WHITE);
-	display.setCursor(0, 8);
+
+	display.setTextSize(1);
+	display.setCursor(0,0);
+	display.println("Iguana V.1.0.1");
+
 	display.setTextSize(2);
-	display.println("ST: ");
-	display.setCursor(50, 8);
+	display.setCursor(16, 16);
+	display.println("ST:");
+	display.setCursor(52, 16);
 	display.print(soil_temp);
-	display.setCursor(0, 24);
+
+	display.setCursor(16, 32);
 	display.println("SM:");
-	display.setCursor(50, 24);
+	display.setCursor(52, 32);
 	display.print(soil_moisture);
 	display.display();
-
 	delay(time_interval);
 
+	
 	display.clearDisplay();
-	display.setCursor(0, 8);
+
+	display.setTextSize(1);
+	display.setCursor(0,0);
+	display.println("Iguana V.1.0.1");
+	
+	display.setTextSize(2);
+	display.setCursor(16, 16);
 	display.println("T:");
-	display.setCursor(50, 8);
+	display.setCursor(52, 16);
 	display.print(ambient_temp);
-	display.setCursor(0, 24);
+
+	display.setCursor(16, 32);
 	display.println("H:");
-	display.setCursor(50, 24);
+	display.setCursor(52, 32);
 	display.print(ambient_h);
+
 	display.display();
 	delay(time_interval);
-	display.clearDisplay();
-	display.display();
+
 }
