@@ -21,6 +21,8 @@
 #include <ArduinoJson.h>
 #include <LoRa.h>
 #include <WiFi.h>
+#include <WebServer.h>
+#include <AutoConnect.h>
 
 /*-------PINs OF IGUANA BOARD------*/
 #define LED          2 // on board led
@@ -262,6 +264,7 @@ class iowIguana
 	int sum_adc = 0;
 	float soil_moisture_val = 0;
 	float soil_moisture_m   = (61.3-100)/(MOISTURE_AIR_VALUE-MOISTURE_WATER_VALUE);
+	
 
     bool sht_sel 		= false;	//sht31 sel
     bool st_sel 		= false;  	//soil temperature sel
