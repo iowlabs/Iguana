@@ -59,17 +59,17 @@ void setup()
   	iguana.activateSTH();
   	iguana.activateSoilTemp();
   	iguana.activateSoilMoisture();
-
 	status = iguana.begin();
 	printlnd(status);
+
   	delay(200);
+
   	iguana.iowLogo();
   	delay(3000);
   	iguana.showLogo();
   	delay(3000);
 
-	Serial.println("setup ready");
-
+	Serial.println("Setup Ready");
 }
 
 void loop()

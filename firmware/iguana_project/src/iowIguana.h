@@ -69,6 +69,8 @@
 #define ERROR_LORA    0b00001000
 
 #define N_AVG_SAMPLES 			100
+
+//CALIBRATION PARAMETERS
 #define MOISTURE_AIR_VALUE 		2468
 #define MOISTURE_WATER_VALUE	986
 
@@ -222,8 +224,7 @@ const unsigned char logo_iguana [] PROGMEM = {
 
 
 
-class iowIguana
-{
+class iowIguana{
   public:
     iowIguana();
 
@@ -271,6 +272,7 @@ class iowIguana
     bool sm_sel 		= false; 	//soil moisture  sel
     bool rs485_sel 		= false; 	//modbus sensor sel
     bool lora_sel 		= false;
+	
 	bool st_status 		= false;
 	bool sm_status 		= false;
 	bool sht_status 	= false;
