@@ -66,7 +66,7 @@ The layout is a 2 layers 8x5cm pcb.
 
 ### BOM
 
-The bill of materials with respective references to the LCSC part numbers of the iguana PCB components can be found in the following [link](hardware/output_files/Iguana_board.csv).
+The bill of materials with respective references to the LCSC part numbers of the iguana PCB components can be found in the following [link](hardware/output_files/Iguana_V1_BOM.csv).
 
 Below is a list of the components for the probes and sensors that complement the iguana device to implement all its functionalities. The prices provided and the links are for reference only.
 
