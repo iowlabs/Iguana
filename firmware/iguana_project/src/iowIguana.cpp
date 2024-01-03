@@ -41,6 +41,7 @@ uint8_t iowIguana::begin()
 
 	pinMode(PUMP,OUTPUT);
 	pinMode(RGB,OUTPUT);
+	pinMode(RS485_EN,OUTPUT);
 
 
   	digitalWrite(V_EN  ,HIGH);
@@ -48,6 +49,9 @@ uint8_t iowIguana::begin()
   	digitalWrite(RFM_CS ,HIGH);
   	digitalWrite(RFM_RST,HIGH);
 	digitalWrite(PUMP,LOW);
+	digitalWrite(RS485_EN,LOW);
+
+	SERIAL_RS485.begin(RS485_BR, RS485_TX, RS485_RX);
 
   	Wire.begin();
 
@@ -61,12 +65,18 @@ uint8_t iowIguana::begin()
     	if(LoRa.begin(915E6)) lora_status = true;
     	LoRa.setSyncWord(0xF3);
   	}
-	if(sht_sel){
+	if(sht_sel)
+	{
 		if(sensor_sht31.begin(0x44)) sht_status = true;
 	}
-	if(st_sel){
+	if(st_sel)
+	{
 		sensor_temp.begin();
 		st_status = true;
+	}
+	if(rs485_sel)
+	{
+		SERIAL_RS485.begin(RS485_BR, RS485_TX, RS485_RX);
 	}
 	display.clearDisplay();
   	display.setRotation(0); //IF NOT INVERTED COMMENT THIS LINE
@@ -117,9 +127,33 @@ void iowIguana::activateAll()
   	lora_sel    = true;
 }
 
+// This function must be conditioned for each modbus sensor
 void iowIguana::readRS485()
 {
-	return;
+	//TRY WITH 410 TRAMA
+    digitalWrite(RS485_EN,HIGH);
+    SERIAL_RS485.write(rs485_trama,8);
+    SERIAL_RS485.flush();
+    digitalWrite(RS485_EN,LOW);
+    delay(100);
+
+	SERIAL_RS485.readBytes(rs485_rcv_buff,7);
+	for (int i = 0; i<7;i++)
+  	  {
+  		  Serial.print(rs485_rcv_buff[i], HEX); // Print the received byte in HEX format
+  		  Serial.print(",");
+
+  	  }
+    Serial.println();
+    for(int i = 0; i<2 ; i++){ rs485_val_buff[i] 	= rs485_rcv_buff[i];}
+
+    //CONVERT DATA TO FLOAT
+	int moisture_int = int(rs485_val_buff[0]<<8 | rs485_val_buff[1]);
+	Serial.println(moisture_int);
+	Serial.println(moisture_int/100.0);
+    //rs485_moisture = (int(rs485_rcv_buff[0]<<8|rs485_rcv_buff[1]))/100.00;
+	//printlnd(rs485_moisture);
+
 }
 
 void iowIguana::readSTH()
@@ -175,10 +209,11 @@ String iowIguana::pubData(void)
 
   	doc_tx["id"]    = ID;
   	doc_tx["time"]  = timestamp;
-  	if(sht_sel) doc_tx["ta"]  = ambient_temp;
-  	if(sht_sel) doc_tx["ha"]  = ambient_h;
-  	if(st_sel)  doc_tx["ts"]  = soil_moisture;
-  	if(sm_sel)  doc_tx["ms"]  = soil_temp;
+  	if(sht_sel) 	doc_tx["ta"]  = ambient_temp;
+  	if(sht_sel) 	doc_tx["ha"]  = ambient_h;
+  	if(st_sel)  	doc_tx["ms"]  = soil_moisture;
+  	if(sm_sel)  	doc_tx["ts"]  = soil_temp;
+	if(rs485_sel) 	doc_tx["m"]   = rs485_moisture;
 
   	String json;
   	serializeJson(doc_tx, json);
@@ -203,8 +238,9 @@ void iowIguana::saveData(void)
   	if(sht_sel) doc_tx["ha"]  = ambient_h;
   	if(st_sel)  doc_tx["ts"]  = soil_moisture;
   	if(sm_sel)  doc_tx["ms"]  = soil_temp;
+	if(rs485_sel) 	doc_tx["m"]   = rs485_moisture;
 
-  	String json;
+	String json;
   	serializeJson(doc_tx, json);
 
   	iowsd.appendFile(SD,FILE_NAME,json.c_str());
@@ -237,13 +273,13 @@ void iowIguana::showData(long time_interval)
 	display.display();
 	delay(time_interval);
 
-	
+
 	display.clearDisplay();
 
 	display.setTextSize(1);
 	display.setCursor(0,0);
 	display.println("Iguana V.1.0.1");
-	
+
 	display.setTextSize(2);
 	display.setCursor(16, 16);
 	display.println("T:");

@@ -21,8 +21,7 @@
 #include <ArduinoJson.h>
 #include <LoRa.h>
 #include <WiFi.h>
-#include <WebServer.h>
-#include <AutoConnect.h>
+
 
 /*-------PINs OF IGUANA BOARD------*/
 #define LED          2 // on board led
@@ -51,15 +50,15 @@
 #define BAT_LVL    	35
 
 
-#define DISPLAY_ADDRESS 0x3C
-#define SCREEN_WIDTH 128 // OLED display width, in pixels
-#define SCREEN_HEIGHT 64 // OLED display height, in pixels
-#define OLED_RESET     -1 // Reset pin # (or -1 if sharing Arduino reset pin)
+#define DISPLAY_ADDRESS 	0x3C
+#define SCREEN_WIDTH 		128 // OLED display width, in pixels
+#define SCREEN_HEIGHT 		64 // OLED display height, in pixels
+#define OLED_RESET     		-1 // Reset pin # (or -1 if sharing Arduino reset pin)
 
 #define ID              "n01"
 #define RESPONSE_OK     "OK"
 #define RESPONSE_ERROR  "ERROR"
-#define FILE_NAME       "/log.txt"
+#define FILE_NAME       "/Iguana_log.txt"
 
 #define STATUS_OK     0
 #define STATUS_ERROR  1
@@ -75,6 +74,9 @@
 #define MOISTURE_WATER_VALUE	986
 
 #define SERIAL_RS485 Serial2
+#define RS485_BR 	 4800
+
+#define DEBUG     1
 
 //Macros for enable serial prints
 #if DEBUG
@@ -85,7 +87,9 @@
 #define printlnd(s)
 #endif
 
-#define DEBUG     1
+
+
+
 
 const unsigned char logo_iowlabs [] PROGMEM = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -222,16 +226,15 @@ const unsigned char logo_iguana [] PROGMEM = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
 
-
-
 class iowIguana{
   public:
     iowIguana();
 
-    float soil_temp  	= 0.0;
-    float soil_moisture = 0.0;
-	float ambient_temp  = 0.0;
-	float ambient_h  	= 0.0;
+    float soil_temp  		= 0.0;
+    float soil_moisture 	= 0.0;
+	float ambient_temp  	= 0.0;
+	float ambient_h  		= 0.0;
+	float rs485_moisture 	= 0.0;
 
     unsigned long timestamp;
 
@@ -265,14 +268,20 @@ class iowIguana{
 	int sum_adc = 0;
 	float soil_moisture_val = 0;
 	float soil_moisture_m   = (61.3-100)/(MOISTURE_AIR_VALUE-MOISTURE_WATER_VALUE);
-	
+
+	//NTU/SST
+	//byte rs485_trama[8] = {0x01,0x03,0x00,0x00,0x00,0x02,0xC4,0xB0};//
+	byte rs485_trama[8] = {0x01,0x03,0x00,0x00,0x00,0x01,0x84,0x0A};//
+	//byte rs485_trama[8] = {0x01,0x03,0x00,0x01,0x00,0x01,0xD5,0xCA};//
+	byte rs485_rcv_buff [15];
+	byte rs485_temp_buff[4] , rs485_header_buff[3], rs485_val_buff[2];
 
     bool sht_sel 		= false;	//sht31 sel
     bool st_sel 		= false;  	//soil temperature sel
     bool sm_sel 		= false; 	//soil moisture  sel
     bool rs485_sel 		= false; 	//modbus sensor sel
     bool lora_sel 		= false;
-	
+
 	bool st_status 		= false;
 	bool sm_status 		= false;
 	bool sht_status 	= false;
