@@ -51,7 +51,9 @@ uint8_t iowIguana::begin()
 	digitalWrite(PUMP,LOW);
 	digitalWrite(RS485_EN,LOW);
 
-	SERIAL_RS485.begin(RS485_BR, RS485_TX, RS485_RX);
+	//SERIAL_RS485(RS485_TX, RS485_RX);
+
+	SERIAL_RS485.begin(RS485_BR);
 
   	Wire.begin();
 
@@ -76,7 +78,7 @@ uint8_t iowIguana::begin()
 	}
 	if(rs485_sel)
 	{
-		SERIAL_RS485.begin(RS485_BR, RS485_TX, RS485_RX);
+		SERIAL_RS485.begin(RS485_BR);
 	}
 	display.clearDisplay();
   	display.setRotation(0); //IF NOT INVERTED COMMENT THIS LINE
@@ -130,29 +132,50 @@ void iowIguana::activateAll()
 // This function must be conditioned for each modbus sensor
 void iowIguana::readRS485()
 {
+	
 	//TRY WITH 410 TRAMA
     digitalWrite(RS485_EN,HIGH);
-    SERIAL_RS485.write(rs485_trama,8);
+    SERIAL_RS485.write(soilSensorRequest, sizeof(soilSensorRequest));
     SERIAL_RS485.flush();
     digitalWrite(RS485_EN,LOW);
     delay(100);
+	
+	// NUEVOOO
 
-	SERIAL_RS485.readBytes(rs485_rcv_buff,7);
-	for (int i = 0; i<7;i++)
-  	  {
-  		  Serial.print(rs485_rcv_buff[i], HEX); // Print the received byte in HEX format
-  		  Serial.print(",");
-
-  	  }
-    Serial.println();
-    for(int i = 0; i<2 ; i++){ rs485_val_buff[i] 	= rs485_rcv_buff[i];}
-
-    //CONVERT DATA TO FLOAT
-	int moisture_int = int(rs485_val_buff[0]<<8 | rs485_val_buff[1]);
-	Serial.println(moisture_int);
-	Serial.println(moisture_int/100.0);
-    //rs485_moisture = (int(rs485_rcv_buff[0]<<8|rs485_rcv_buff[1]))/100.00;
-	//printlnd(rs485_moisture);
+	unsigned long startTime = millis();
+	while (SERIAL_RS485.available() < 7 && millis() - startTime < 1000)
+	{
+		delay(1);
+	}
+	
+	if (SERIAL_RS485.available() >= 7) // If valid response received
+	{
+		// Read the response from the sensor
+		byte index = 0;
+		while (SERIAL_RS485.available() && index < 7)
+		{
+		soilSensorResponse[index] = SERIAL_RS485.read();
+		Serial.print(soilSensorResponse[index], HEX); // Print the received byte in HEX format
+		Serial.print(" ");
+		index++;
+		}
+		Serial.println();
+ 
+		// Parse and calculate the Moisture value
+		int Moisture_Int = int(soilSensorResponse[3] << 8 | soilSensorResponse[4]);
+		float Moisture_Percent = Moisture_Int / 10.0;
+ 
+		Serial.print("Moisture: ");
+		Serial.print(Moisture_Percent);
+		Serial.println(" %RH\n");
+		rs485_moisture = Moisture_Percent;
+ 
+ 
+	}
+	else
+	{
+		Serial.println("Sensor timeout or incomplete frame");
+	}
 
 }
 
@@ -182,10 +205,11 @@ void iowIguana::readSoilMoisture()
 	  sum_adc += analogRead(SENS_M);
 	}
 	soil_moisture_val = sum_adc/N_AVG_SAMPLES;
-	soil_moisture = (soil_moisture_m)*(soil_moisture_val - MOISTURE_WATER_VALUE) + 100; //EC. recta
+	// soil_moisture = (soil_moisture_m)*(soil_moisture_val - MOISTURE_WATER_VALUE) + 100; //EC. recta
 
-	if(soil_moisture < 0.0) soil_moisture = 0; //constrain min
-	if(soil_moisture > 100.0) soil_moisture = 100; //constrain MAX
+	// if(soil_moisture < 0.0) soil_moisture = 0; //constrain min
+	// if(soil_moisture > 100.0) soil_moisture = 100; //constrain MAX
+	soil_moisture = soil_moisture_val;
 
 	soil_moisture_val 	= 0;
 	sum_adc 			= 0;
@@ -195,11 +219,11 @@ void iowIguana::readSensors()
 {
 	if(sht_sel){readSTH();}
 	if(sm_sel ){readSoilMoisture();}
-	if(st_sel ){readSoilTemperature();}
 	if(rs485_sel){readRS485();}
+	if(st_sel ){readSoilTemperature();}
 	if (rtc.updateTime() == true) //Updates the time variables from RTC
   	{
-    	timestamp = rtc.getEpoch(); //Get the time in UNIX
+    	timestamp = rtc.getLocalEpoch(true) - 220678400; //Get the time in UNIX
   	}
 }
 
@@ -294,4 +318,26 @@ void iowIguana::showData(long time_interval)
 	display.display();
 	delay(time_interval);
 
+}
+
+void iowIguana::firmwareUpdate(void)
+{
+  //WiFiClientSecure client;
+  client.setCACert(rootCACertificate);
+  httpUpdate.setLedPin(LED_BUILTIN, LOW);
+  t_httpUpdate_return ret = httpUpdate.update(client, URL_fw_Bin);
+
+  switch (ret) {
+  case HTTP_UPDATE_FAILED:
+    Serial.printf("HTTP_UPDATE_FAILD Error (%d): %s\n", httpUpdate.getLastError(), httpUpdate.getLastErrorString().c_str());
+    break;
+
+  case HTTP_UPDATE_NO_UPDATES:
+    Serial.println("HTTP_UPDATE_NO_UPDATES");
+    break;
+
+  case HTTP_UPDATE_OK:
+    Serial.println("HTTP_UPDATE_OK");
+    break;
+  }
 }

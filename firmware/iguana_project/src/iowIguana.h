@@ -21,6 +21,12 @@
 #include <ArduinoJson.h>
 #include <LoRa.h>
 #include <WiFi.h>
+#include <HTTPClient.h>
+#include <HTTPUpdate.h>
+#include <WiFiClientSecure.h>
+//#include "cert.h"
+//#include <SoftwareSerial.h>
+
 
 
 /*-------PINs OF IGUANA BOARD------*/
@@ -38,7 +44,7 @@
 #define RFM_DIO0     26
 #define RFM_DIO1     27
 
-#define RS485_TX     16 //HARDWARE SERIAL 2
+#define RS485_TX 	 16 //HARDWARE SERIAL 2
 #define RS485_RX     17 //HARDWARE SERIAL 2
 #define RS485_EN     4
 #define V_EN		 33
@@ -55,7 +61,7 @@
 #define SCREEN_HEIGHT 		64 // OLED display height, in pixels
 #define OLED_RESET     		-1 // Reset pin # (or -1 if sharing Arduino reset pin)
 
-#define ID              "n01"
+#define ID              "n06_ota"
 #define RESPONSE_OK     "OK"
 #define RESPONSE_ERROR  "ERROR"
 #define FILE_NAME       "/Iguana_log.txt"
@@ -74,6 +80,8 @@
 #define MOISTURE_WATER_VALUE	986
 
 #define SERIAL_RS485 Serial2
+
+
 #define RS485_BR 	 4800
 
 #define DEBUG     1
@@ -87,6 +95,10 @@
 #define printlnd(s)
 #endif
 
+
+// OTAUPDATE
+
+#define URL_fw_Bin "https://raw.githubusercontent.com/Iowlabs/Iguana/main/firmware/OTA_bin_file/firmware.bin"
 
 
 
@@ -226,6 +238,10 @@ const unsigned char logo_iguana [] PROGMEM = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
 
+const byte soilSensorRequest[] = {0x01,0x03,0x00,0x00,0x00,0x01,0x84,0x0A};
+
+
+
 class iowIguana{
   public:
     iowIguana();
@@ -256,6 +272,7 @@ class iowIguana{
     void showStatus(void);
     void showData(long time_interval);
     void saveData(void);
+	void firmwareUpdate(void);
 
   private:
     RV8803 rtc;
@@ -265,10 +282,14 @@ class iowIguana{
     DallasTemperature sensor_temp = DallasTemperature(&ow);
 	Adafruit_SHT31 sensor_sht31 = Adafruit_SHT31();
 	CRGB rgbLED[1];
+	WiFiClientSecure client;
+
+
+	
 	int sum_adc = 0;
 	float soil_moisture_val = 0;
 	float soil_moisture_m   = (61.3-100)/(MOISTURE_AIR_VALUE-MOISTURE_WATER_VALUE);
-
+	byte soilSensorResponse[9];
 	//NTU/SST
 	//byte rs485_trama[8] = {0x01,0x03,0x00,0x00,0x00,0x02,0xC4,0xB0};//
 	byte rs485_trama[8] = {0x01,0x03,0x00,0x00,0x00,0x01,0x84,0x0A};//
@@ -289,6 +310,30 @@ class iowIguana{
     bool sd_status 		= false;
     bool display_status = false;
     bool lora_status 	= false;
+
+	const char * rootCACertificate = \
+	"-----BEGIN CERTIFICATE-----\n" \
+	"MIIDrzCCApegAwIBAgIQCDvgVpBCRrGhdWrJWZHHSjANBgkqhkiG9w0BAQUFADBh\n" \
+	"MQswCQYDVQQGEwJVUzEVMBMGA1UEChMMRGlnaUNlcnQgSW5jMRkwFwYDVQQLExB3\n" \
+	"d3cuZGlnaWNlcnQuY29tMSAwHgYDVQQDExdEaWdpQ2VydCBHbG9iYWwgUm9vdCBD\n" \
+	"QTAeFw0wNjExMTAwMDAwMDBaFw0zMTExMTAwMDAwMDBaMGExCzAJBgNVBAYTAlVT\n" \
+	"MRUwEwYDVQQKEwxEaWdpQ2VydCBJbmMxGTAXBgNVBAsTEHd3dy5kaWdpY2VydC5j\n" \
+	"b20xIDAeBgNVBAMTF0RpZ2lDZXJ0IEdsb2JhbCBSb290IENBMIIBIjANBgkqhkiG\n" \
+	"9w0BAQEFAAOCAQ8AMIIBCgKCAQEA4jvhEXLeqKTTo1eqUKKPC3eQyaKl7hLOllsB\n" \
+	"CSDMAZOnTjC3U/dDxGkAV53ijSLdhwZAAIEJzs4bg7/fzTtxRuLWZscFs3YnFo97\n" \
+	"nh6Vfe63SKMI2tavegw5BmV/Sl0fvBf4q77uKNd0f3p4mVmFaG5cIzJLv07A6Fpt\n" \
+	"43C/dxC//AH2hdmoRBBYMql1GNXRor5H4idq9Joz+EkIYIvUX7Q6hL+hqkpMfT7P\n" \
+	"T19sdl6gSzeRntwi5m3OFBqOasv+zbMUZBfHWymeMr/y7vrTC0LUq7dBMtoM1O/4\n" \
+	"gdW7jVg/tRvoSSiicNoxBN33shbyTApOB6jtSj1etX+jkMOvJwIDAQABo2MwYTAO\n" \
+	"BgNVHQ8BAf8EBAMCAYYwDwYDVR0TAQH/BAUwAwEB/zAdBgNVHQ4EFgQUA95QNVbR\n" \
+	"TLtm8KPiGxvDl7I90VUwHwYDVR0jBBgwFoAUA95QNVbRTLtm8KPiGxvDl7I90VUw\n" \
+	"DQYJKoZIhvcNAQEFBQADggEBAMucN6pIExIK+t1EnE9SsPTfrgT1eXkIoyQY/Esr\n" \
+	"hMAtudXH/vTBH1jLuG2cenTnmCmrEbXjcKChzUyImZOMkXDiqw8cvpOp/2PV5Adg\n" \
+	"06O/nVsJ8dWO41P0jmP6P6fbtGbfYmbW0W5BjfIttep3Sp+dWOIrWcBAI+0tKIJF\n" \
+	"PnlUkiaY4IBIqDfv8NZ5YBberOgOzW6sRBc4L0na4UU+Krk2U886UAb3LujEV0ls\n" \
+	"YSEY1QSteDwsOoBrp+uvFRTp2InBuThs4pFsiv9kuXclVzDAGySj4dzp30d8tbQk\n" \
+	"CAUw7C29C79Fv1C5qfPrmAESrciIxpg0X40KPMbp1ZWVbd4=\n" \
+	"-----END CERTIFICATE-----\n";
 
 };
 
