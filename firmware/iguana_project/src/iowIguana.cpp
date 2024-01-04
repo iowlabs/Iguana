@@ -325,7 +325,9 @@ void iowIguana::firmwareUpdate(void)
   //WiFiClientSecure client;
   client.setCACert(rootCACertificate);
   httpUpdate.setLedPin(LED_BUILTIN, LOW);
+  Serial.println("Updating firmware...");
   t_httpUpdate_return ret = httpUpdate.update(client, URL_fw_Bin);
+  Serial.println("Firmware updated!");
 
   switch (ret) {
   case HTTP_UPDATE_FAILED:

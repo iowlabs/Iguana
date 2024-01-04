@@ -66,8 +66,11 @@ WiFiClient wifiClient;
 PubSubClient mqtt(wifiClient);
 
 // Conexión a una red y servidor de MQTT
-const char* ssid      	= "iownwater";
-const char* password  	= "temp3_NL156$";
+// const char* ssid      	= "iownwater";
+// const char* password  	= "temp3_NL156$";
+
+const char* ssid      	= "dedmu52";
+const char* password  	= "123456789";
 const char* mqtt_server = "35.223.234.244";
 
 iowIguana iguana = iowIguana();
@@ -123,6 +126,7 @@ void loop()
     publishMqtt((char*) output.c_str());
   }
   mqtt.loop();
+  
   //delay(60000/4);
 }
 
