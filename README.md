@@ -168,4 +168,10 @@ Except for the uSD_iow library which is available in the official iowlabs reposi
 - void moistureCal(uint8_t val);
 - void temperatureCal(uint8_t val);
 
-## Instruction and usage
+## OTA UPDATE Disclaimer
+- Iguana ahora es capaz de tener actualizaciones Http mediante OTA
+- En la carpeta test se encuentra el archivo "OTA_update_mqtt.cpp"
+- Robusto ante corte de energía durante actualización
+- Existía un bug cuando se cortaba el wifi del dispositivo en medio de una actualización. Se levantaba un error de la librería WiFiClientSecurity en el archivo ssl_client.cpp
+- Solución a bug: Se modifica el archivo ssl_client.cpp de forma que a penas se levante el error (linea 37) se haga ESP.restart(). Con esto OTA es robusto ante cualquier fallo testeado.
+- Para que todo se encuentre en el repo, se descargaron los archivos .cpp y .h de la librería WiFiClientSecurity y se cargaron en la carpeta libs del proyecto. Esto con el fin de que el arreglo lo pueda pullear cualquiera que tome este código.
