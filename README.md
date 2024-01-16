@@ -1,8 +1,8 @@
-# iowLabs Iguana
+# iow Labs Iguana
 
 ![Foto real](3Dmodel/img/iguana_PCB_3d.png)
 
-Iguana is a LoRa sensor for smartCitys. It is an instrument designed to monitor soil temperature and humidity in real time. It is a low-cost device designed to address a wide range of scenarios. It has connectivity to different types of wireless networks (LoRa, Bt, BLE, Wifi, RF), adapting to a large number of IoT applications.
+Iguana is a LoRa sensor for Smart Cities. It is an instrument designed to monitor soil temperature and humidity in real time. It is a low-cost device designed to address a wide range of scenarios. It has connectivity to different types of wireless networks (LoRa, Bt, BLE, Wifi, RF), adapting to a large number of IoT applications.
 
 The PCB was designed with various scenarios in mind that contemplate the common needs associated with automatic irrigation, smart agriculture and soil quality monitoring. Both at the level of domestic applications and at the level of industrial applications.
 
