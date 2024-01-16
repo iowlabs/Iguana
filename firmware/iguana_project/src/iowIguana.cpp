@@ -34,10 +34,6 @@ uint8_t iowIguana::begin()
   	pinMode(V_EN,OUTPUT);
 
   	pinMode(SD_CS, OUTPUT);
-  	pinMode(RFM_CS  ,OUTPUT);
-  	pinMode(RFM_RST ,OUTPUT);
-  	pinMode(RFM_DIO0,OUTPUT);
-  	pinMode(RFM_DIO1,OUTPUT);
 
 	pinMode(PUMP,OUTPUT);
 	pinMode(RGB,OUTPUT);
@@ -46,9 +42,7 @@ uint8_t iowIguana::begin()
 
   	digitalWrite(V_EN  ,HIGH);
   	digitalWrite(SD_CS ,HIGH);
-  	digitalWrite(RFM_CS ,HIGH);
-  	digitalWrite(RFM_RST,HIGH);
-	digitalWrite(PUMP,LOW);
+  	digitalWrite(PUMP,LOW);
 	digitalWrite(RS485_EN,LOW);
 
 	//SERIAL_RS485(RS485_TX, RS485_RX);
@@ -59,14 +53,29 @@ uint8_t iowIguana::begin()
 
 	FastLED.addLeds<NEOPIXEL, RGB>(rgbLED, 1);  // GRB ordering is assumed
 
-  	if(rtc.begin()) rtc_status = true;
+  	if(rtc.begin())
+	{
+		rtc_status = true;
+		//rtc.setTime(0,18, 22, 1, 14,1, 2024);// only run once
+	}
   	if(iowsd.uSD_init(SD_CS)) sd_status = true;
   	if(display.begin(DISPLAY_ADDRESS,true)) display_status = true ;
-  	if(lora_sel){
+
+	if(lora_sel)
+	{
     	LoRa.setPins(RFM_CS, RFM_RST, RFM_DIO0);
-    	if(LoRa.begin(915E6)) lora_status = true;
+		printd("conecting lora .");
+		while(!LoRa.begin(915E6))
+		{
+			printd(".");
+			delay(500);
+		}
+		printlnd("");
     	LoRa.setSyncWord(0xF3);
+		lora_status = 1;
   	}
+	else
+	{	printlnd("lora problem");}
 	if(sht_sel)
 	{
 		if(sensor_sht31.begin(0x44)) sht_status = true;
@@ -86,7 +95,7 @@ uint8_t iowIguana::begin()
   	display.setTextSize(2);
 	// display.setFont(); //If not in use, comment
 
-  	if( rtc_status && display_status && sd_status && !(sht_sel^sht_status) && !(st_sel^st_status) )
+  	if( rtc_status && display_status  && !(sht_sel^sht_status) && !(st_sel^st_status) )
 	{
 		rgbLED[0]= CRGB::Blue;
 		FastLED.show();
@@ -132,14 +141,14 @@ void iowIguana::activateAll()
 // This function must be conditioned for each modbus sensor
 void iowIguana::readRS485()
 {
-	
+
 	//TRY WITH 410 TRAMA
     digitalWrite(RS485_EN,HIGH);
     SERIAL_RS485.write(soilSensorRequest, sizeof(soilSensorRequest));
     SERIAL_RS485.flush();
     digitalWrite(RS485_EN,LOW);
     delay(100);
-	
+
 	// NUEVOOO
 
 	unsigned long startTime = millis();
@@ -147,30 +156,30 @@ void iowIguana::readRS485()
 	{
 		delay(1);
 	}
-	
+
 	if (SERIAL_RS485.available() >= 7) // If valid response received
 	{
 		// Read the response from the sensor
 		byte index = 0;
 		while (SERIAL_RS485.available() && index < 7)
 		{
-		soilSensorResponse[index] = SERIAL_RS485.read();
-		Serial.print(soilSensorResponse[index], HEX); // Print the received byte in HEX format
-		Serial.print(" ");
-		index++;
+			soilSensorResponse[index] = SERIAL_RS485.read();
+			//Serial.print(soilSensorResponse[index], HEX); // Print the received byte in HEX format
+			//Serial.print(" ");
+			index++;
 		}
 		Serial.println();
- 
+
 		// Parse and calculate the Moisture value
 		int Moisture_Int = int(soilSensorResponse[3] << 8 | soilSensorResponse[4]);
 		float Moisture_Percent = Moisture_Int / 10.0;
- 
-		Serial.print("Moisture: ");
-		Serial.print(Moisture_Percent);
-		Serial.println(" %RH\n");
+
+		//Serial.print("Moisture: ");
+		//Serial.print(Moisture_Percent);
+		//Serial.println(" %RH\n");
 		rs485_moisture = Moisture_Percent;
- 
- 
+
+
 	}
 	else
 	{
@@ -223,7 +232,7 @@ void iowIguana::readSensors()
 	if(st_sel ){readSoilTemperature();}
 	if (rtc.updateTime() == true) //Updates the time variables from RTC
   	{
-    	timestamp = rtc.getLocalEpoch(true) - 220678400; //Get the time in UNIX
+    	timestamp = rtc.getLocalEpoch(true); //Get the time in UNIX
   	}
 }
 
@@ -248,6 +257,7 @@ String iowIguana::pubData(void)
     	LoRa.beginPacket();
     	LoRa.print(json);
     	LoRa.endPacket();
+		printlnd("msg sended");
   	}
   	return json;
 }

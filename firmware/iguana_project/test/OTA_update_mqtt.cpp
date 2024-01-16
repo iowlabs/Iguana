@@ -108,8 +108,8 @@ void setup()
 
 
 	setupWiFi();
-  mqtt.setServer(mqtt_server,MQTT_PORT);
-  mqtt.setCallback(callback);
+  	mqtt.setServer(mqtt_server,MQTT_PORT);
+  	mqtt.setCallback(callback);
 
 	Serial.println("Setup Ready");
 }
@@ -126,7 +126,7 @@ void loop()
     publishMqtt((char*) output.c_str());
   }
   mqtt.loop();
-  
+
   //delay(60000/4);
 }
 
@@ -190,19 +190,19 @@ void callback(char* topic, byte* payload, unsigned int length) {
   Serial.print("] ");
 
   char payload_string[length + 1];
-  
+
   int resultI;
   String resultS = "";
 
   memcpy(payload_string, payload, length);
   payload_string[length] = '\0';
   resultI = atoi(payload_string);
-  
+
   //var = resultI;
   Serial.print(resultI);
 
   //resultS = "";
-  
+
   for (int i=0;i<length;i++) {
     resultS= resultS + (char)payload[i];
   }

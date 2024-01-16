@@ -39,7 +39,7 @@
 #define SD_MOSI      23
 #define SD_CLK       18
 
-#define RFM_CS       15 //HPSI
+#define RFM_CS       15
 #define RFM_RST      25
 #define RFM_DIO0     26
 #define RFM_DIO1     27
@@ -103,7 +103,8 @@
 
 
 
-const unsigned char logo_iowlabs [] PROGMEM = {
+const unsigned char logo_iowlabs [] PROGMEM =
+{
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -277,6 +278,7 @@ class iowIguana{
   private:
     RV8803 rtc;
     USD_IOW iowsd;
+	SPIClass spi =  SPIClass(HSPI);
     Adafruit_SH1106G display = Adafruit_SH1106G(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 	OneWire ow = OneWire(SENS_TEMP);
     DallasTemperature sensor_temp = DallasTemperature(&ow);
@@ -285,7 +287,6 @@ class iowIguana{
 	WiFiClientSecure client;
 
 
-	
 	int sum_adc = 0;
 	float soil_moisture_val = 0;
 	float soil_moisture_m   = (61.3-100)/(MOISTURE_AIR_VALUE-MOISTURE_WATER_VALUE);

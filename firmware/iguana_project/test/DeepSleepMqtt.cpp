@@ -11,7 +11,7 @@
 #define MQTT_PUBLISH_CH   "Iguana2"
 #define MQTT_RECEIVER_CH  "Iguana/rx"
 
-// Definitions for deepsleep 
+// Definitions for deepsleep
 #define uS_TO_S_FACTOR 1000000     /* Conversion factor for micro seconds to seconds */
 #define TIME_TO_SLEEP 20           /* Time ESP32 will go to sleep (in seconds) */
 
@@ -28,7 +28,7 @@ iowIguana iguana = iowIguana();
 uint8_t status;
 String output;
 String msg = "Iguanita";
-int  mqtt_try       = 0; 
+int  mqtt_try       = 0;
 bool mqtt_connected = false;
 bool wifi_status = false;
 
@@ -39,46 +39,46 @@ bool    reconnect();
 void setup()
 {
 	Serial.begin(115200);
-  iguana.activateSTH();
-  iguana.activateSoilTemp();
-  iguana.activateSoilMoisture();
+  	iguana.activateSTH();
+  	iguana.activateSoilTemp();
+  	iguana.activateSoilMoisture();
 	iguana.activateRS485();
 
 	iguana.begin();
 	printlnd(status);
 
-  delay(200);
-  iguana.iowLogo();
-  delay(3000);
-  iguana.showLogo();
-  delay(3000);
+	delay(200);
+  	iguana.iowLogo();
+  	delay(3000);
+  	iguana.showLogo();
+  	delay(3000);
 
 	setupWiFi();
-  mqtt.setServer(mqtt_server,MQTT_PORT);
+  	mqtt.setServer(mqtt_server,MQTT_PORT);
 	Serial.println("Setup Ready");
 
-  iguana.readSensors();
-  output = iguana.pubData();
-  Serial.println(output);
-  iguana.saveData();
-  iguana.showData(2500);
+  	iguana.readSensors();
+  	output = iguana.pubData();
+  	Serial.println(output);
+  	iguana.saveData();
+  	iguana.showData(2500);
 
-  if (!mqtt.connected()) {
-    reconnect();}
-  
-  mqtt.loop();
-  delay(100);
-  mqtt.publish("Iguana2",  output.c_str());
-  Serial.println("Iguanita sent");
-  delay(3000);
-  mqtt.unsubscribe("Iguana2");
-  mqtt.disconnect();
-  WiFi.disconnect();
-  esp_sleep_enable_timer_wakeup(TIME_TO_SLEEP * uS_TO_S_FACTOR); //go to sleep
-  Serial.println("Setup ESP32 to Deep sleep for " + String(TIME_TO_SLEEP) + " Seconds");
-  Serial.println("Going to sleep now...zzZzzZzz");
-  esp_deep_sleep_start();
-}
+  	if (!mqtt.connected())
+	{
+    	reconnect();}
+  		mqtt.loop();
+  		delay(100);
+  		mqtt.publish("Iguana2",  output.c_str());
+  		Serial.println("Iguanita sent");
+  		delay(3000);
+  		mqtt.unsubscribe("Iguana2");
+  		mqtt.disconnect();
+  		WiFi.disconnect();
+  		esp_sleep_enable_timer_wakeup(TIME_TO_SLEEP * uS_TO_S_FACTOR); //go to sleep
+  		Serial.println("Setup ESP32 to Deep sleep for " + String(TIME_TO_SLEEP) + " Seconds");
+  		Serial.println("Going to sleep now...zzZzzZzz");
+  		esp_deep_sleep_start();
+	}
 
 void loop()
 {
@@ -102,13 +102,14 @@ void setupWiFi()
     digitalWrite(LED,LOW);
     count++;
     Serial.print(".");
-    if (count > 20) {
-      Serial.println("");
-      Serial.println("Something bad happened, trying to reset");
-      mqtt.disconnect();
-      WiFi.disconnect();
-      ESP.restart();
-    }
+    	if (count > 20)
+		{
+    		Serial.println("");
+    		Serial.println("Something bad happened, trying to reset");
+    		mqtt.disconnect();
+    		WiFi.disconnect();
+    		ESP.restart();
+    	}
     }
     Serial.println("");
     digitalWrite(LED,HIGH);

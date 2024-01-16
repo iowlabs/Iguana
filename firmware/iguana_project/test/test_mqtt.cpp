@@ -9,7 +9,11 @@ Project: Iguana
 DESCRIPTION: This code is for Iguana sensor station for small agriculture.
 It features both temperature and humidity sensors to monitor
 
-Last Author: Rickss
+Last Author:
+WAC@IOWLABS
+CRISTOBAL@Iowlabs
+RICKS@IOWLABS
+
 
 Features: Capacitive Soil Moisture Sensor, DS18B20 waterproof temperature sensor
 and SHT31 Temperature & Humidity Sensor. 1'3 OLED Screen.
@@ -177,9 +181,9 @@ void publishMqtt(char *payload)
   if(!mqtt.connected())
   {
    	reconnect();
-	mqtt.publish("Iguana", "hola");
+	mqtt.publish(MQTT_PUBLISH_CH, "hola");
 
   }
-  mqtt.publish("Iguana", payload);
+  mqtt.publish(MQTT_PUBLISH_CH, payload);
 
 }
