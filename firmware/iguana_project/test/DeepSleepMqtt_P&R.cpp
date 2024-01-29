@@ -1,3 +1,27 @@
+/*
+Project: Iguana
+
+Description: This code implements periodic Deep Sleep routines to optimize power
+             consumption, in addition to supporting MQTT publishing and receive and the
+			 use of RTC memory, which retains data even after Deep Sleep.
+
+Last Author: Catalina Sierra
+
+Libraries:
+	sparkfun/SparkFun Qwiic RTC RV8803 Arduino Library @ ^1.2.8
+	paulstoffregen/OneWire@^2.3.7
+	milesburton/DallasTemperature@^3.11.0
+	adafruit/Adafruit SHT31 Library@^2.2.2
+	adafruit/Adafruit BusIO@^1.14.3
+	adafruit/Adafruit Unified Sensor@^1.1.13
+	bblanchon/ArduinoJson@^6.21.3
+	adafruit/Adafruit SH110X @ ^2.1.8
+    adafruit/Adafruit GFX Library @ ^1.11.5
+	knolleary/PubSubClient@^2.8
+	fastled/FastLED@^3.6.0
+	sandeepmistry/LoRa @ ^0.8.0
+*/
+
 #include <Arduino.h>
 #include "iowIguana.h"
 #include <PubSubClient.h>
