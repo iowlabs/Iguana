@@ -8,4 +8,6 @@
 	- Construction file is simpler, construction was made more efficiently.
 	- Screen fits better.
 
+- V3:
+	- Increased girth of top tongues, because of structural issue.
 
